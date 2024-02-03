@@ -34,6 +34,10 @@ type Response struct {
 	Devices []Device
 }
 
+type DeviceInfo struct {
+	
+}
+
 func fetchDeviceInfo(name string, ctx context.Context) (result *string, err error) {
 
 	ctx, cancel := context.WithTimeout(ctx, time.Second * 10)
@@ -65,7 +69,8 @@ info:=fmt.Sprintf("JAJ %s", b)
 	// results[index] = fmt.Sprintf("JAJ %s", b)
 }
 
-func fetchDevicesInfo(devices []tailscale.Device, ctx context.Context) {
+
+func fetchDevicesInfo(devices []tailscale.Device, ctx context.Context) []string {
 	results := make([]string, len(devices))
 	var wg sync.WaitGroup
 
