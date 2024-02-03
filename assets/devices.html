@@ -1,0 +1,87 @@
+<html>
+  <head>
+    <title>Devices</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=B612:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"
+      integrity="sha512-hUhvpC5f8cgc04OZb55j0KNGh4eh7dLxd/dPSJ5VyzqDWxsayYbojWyl5Tkcgrmb/RVKCRJI1jNlRbVP4WWC4w=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="//unpkg.com/timeago.js"></script> -->
+    <style>
+      body {
+        background-color: rgb(19, 26, 37);
+        color: rgb(230, 234, 235);
+
+        font-family: "B612", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+      }
+      .devices {
+      }
+      .device {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 0.8em;
+        background-color: #1c2434;
+        border: 1pt solid #2d3340;
+
+        gap: 1.5em;
+      }
+      .row {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        gap: 0.5em;
+      }
+      .info {
+        min-width: 300px;
+      }
+      .primary {
+        color: rgb(230, 234, 235);
+        font-size: 14pt;
+      }
+      .secondary {
+        color: rgb(114, 131, 158);
+        font-size: 12pt;
+      }
+      .up {
+        background-color: rgb(59, 214, 113);
+        width: 30px;
+        height: 30px;
+        border-radius: 30px;
+      }
+      .down {
+        background-color: rgb(223, 72, 74);
+        width: 30px;
+        height: 30px;
+        border-radius: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="devices">
+      {{range .Devices}}
+      <div class="device" id="{{.Id}}">
+        <div class="status"><div class="{{.Status}}"></div></div>
+        <div class="row info">
+          <div class="name primary">{{.Name}}</div>
+          <div class="last-seen secondary">{{.LastSeen}}</div>
+        </div>
+        <div class="row hostname">
+          <div><pre>{{.Hostname}}</pre></div>
+          <div><pre>{{.Adresses}}</pre></div>
+        </div>
+        <div class="row tags"><pre>{{.Tags}}</pre></div>
+      </div>
+      {{end}}
+    </div>
+  </body>
+</html>
