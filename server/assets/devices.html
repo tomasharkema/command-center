@@ -20,8 +20,14 @@
         color: rgb(230, 234, 235);
 
         font-family: "B612", sans-serif;
-        font-weight: 400;
+        font-weight: 200;
         font-style: normal;
+
+        max-width: 900px;
+        margin: 0 auto !important;
+
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
       .devices {
       }
@@ -33,24 +39,24 @@
         background-color: #1c2434;
         border: 1pt solid #2d3340;
 
-        gap: 1.5em;
+        gap: 1em;
       }
       .row {
         display: flex;
         flex-direction: column;
         align-items: start;
-        gap: 0.5em;
+        gap: 0.2em;
       }
       .info {
         min-width: 300px;
       }
       .primary {
         color: rgb(230, 234, 235);
-        font-size: 14pt;
+        font-size: 12pt;
       }
       .secondary {
         color: rgb(114, 131, 158);
-        font-size: 12pt;
+        font-size: 10pt;
       }
       .up {
         background-color: rgb(59, 214, 113);
@@ -64,6 +70,10 @@
         height: 30px;
         border-radius: 30px;
       }
+      pre {
+        margin: 0;
+        padding: 0;
+      }
     </style>
   </head>
   <body>
@@ -76,8 +86,12 @@
           <div class="last-seen secondary">{{.LastSeen}}</div>
         </div>
         <div class="row hostname">
-          <div><pre>{{.Hostname}}</pre></div>
-          <div><pre>{{.Adresses}}</pre></div>
+          <div>
+            <pre>
+            {{.Hostname}}
+            {{.Adresses}}
+            </pre>
+          </div>
         </div>
         <div class="row tags"><pre>{{.Tags}}</pre></div>
       </div>

@@ -1,16 +1,30 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   # https://devenv.sh/basics/
   env.GREET = "devenv";
 
   # https://devenv.sh/packages/
-  packages = [pkgs.git pkgs.go pkgs.golangci-lint];
+  packages = with pkgs; [
+    git
+    go
+    gopls
+    golangci-lint
+    watchexec
+    docker
+  ];
 
   # https://devenv.sh/scripts/
-  scripts.hello.exec = "echo hello from $GREET";
-
-  enterShell = ''
-    hello
-    git --version
+  scripts.build.exec = ''
+    ${lib.getExe pkgs.go} build -v
+  '';
+  scripts.dev.exec = ''
+    ${lib.getExe pkgs.watchexec} -e js,css,html,go go run .
+  '';
+  scripts.docker-build.exec = ''
+    ${lib.getExe pkgs.docker} buildx build --platform=linux/amd64,linux/arm64 . -t ghcr.io/tomasharkema/go-nixos-menu
   '';
 
   languages = {
