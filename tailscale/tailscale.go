@@ -2,18 +2,22 @@ package tailscale
 
 import (
 	"context"
-	"os"
 	"slices"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/tailscale/tailscale-client-go/tailscale"
+)
+
+var (
+
+	apiKey = kingpin.Flag("api-key", "Api Key").Envar("TAILSCALE_API_KEY").Required().String()
+	tailnet = kingpin.Flag("tailnet", "Tailnet").Envar("TAILSCALE_TAILNET").Required().String()
+
 )
 
 func getClient() (*tailscale.Client, error)  {
 
-	apiKey := os.Getenv("TAILSCALE_API_KEY")
-	tailnet := os.Getenv("TAILSCALE_TAILNET")
-
-	client, err := tailscale.NewClient(apiKey, tailnet)
+	client, err := tailscale.NewClient(*apiKey, *tailnet)
 
 	if err!=nil {
 		return nil, err

@@ -4,9 +4,17 @@ import (
 	_ "embed"
 	"os"
 
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/tomasharkema/go-nixos-menu/server"
 
 	"github.com/google/logger"
+)
+
+
+var (
+
+	verbose = kingpin.Flag("verbose", "Verbose mode.").Short('v').Bool()
+
 )
 
 func createLogger() {
@@ -16,10 +24,12 @@ func createLogger() {
 		logger.Fatalf("Failed to open log file: %v", err)
 	}
 
-	logger.Init("nixos devices server", true, true, lf)
+	logger.Init("nixos devices server", *verbose, true, lf)
 }
 
 func main() {
+	kingpin.Parse()
+	
 	createLogger()
 	logger.Infoln("start")
 	server.StartServer()

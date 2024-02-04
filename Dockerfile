@@ -16,5 +16,5 @@ FROM golang:alpine
 COPY --from=builder /go-nixos-menu /go-nixos-menu
 CMD [ "/go-nixos-menu" ]
 
-EXPOSE 3000
+EXPOSE 3333
 VOLUME [ "/data" ]

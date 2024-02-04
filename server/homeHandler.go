@@ -15,7 +15,6 @@ import (
 //go:embed assets/devices.html
 var devicesHtml string
 
-
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx, cancel := context.WithTimeout(r.Context(), time.Minute)
