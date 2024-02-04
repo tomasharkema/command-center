@@ -7,8 +7,8 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY *.go ./
-COPY tailscale/*.go ./tailscale/
-COPY assets assets
+COPY tailscale/. ./tailscale/
+COPY server/. ./server/
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /go-nixos-menu
 
