@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"slices"
 	"sync"
 	"text/template"
 	"time"
@@ -35,12 +34,12 @@ type Response struct {
 }
 
 type DeviceInfo struct {
-	
+	Response string
 }
 
-func fetchDeviceInfo(name string, ctx context.Context) (result *string, err error) {
+func fetchDeviceInfo(name string, ctx context.Context) (result *DeviceInfo, err error) {
 
-	ctx, cancel := context.WithTimeout(ctx, time.Second * 10)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
 	defer cancel()
 
 	url := fmt.Sprintf("https://%s/webhook/hooks/info-json", name)
@@ -63,15 +62,18 @@ func fetchDeviceInfo(name string, ctx context.Context) (result *string, err erro
 		// results[index] = fmt.Sprintf("ERR %s", err)
 		return nil, err
 	}
-info:=fmt.Sprintf("JAJ %s", b)
-	return &info, nil
+
+	info := &DeviceInfo{
+		Response: fmt.Sprintf("JAJ %s", b),
+	}
+
+	return info, nil
 
 	// results[index] = fmt.Sprintf("JAJ %s", b)
 }
 
-
-func fetchDevicesInfo(devices []tailscale.Device, ctx context.Context) []string {
-	results := make([]string, len(devices))
+func fetchDevicesInfo(devices []tailscale.Device, ctx context.Context) []*DeviceInfo {
+	results := make([]*DeviceInfo, len(devices))
 	var wg sync.WaitGroup
 
 	for index, value := range devices {
@@ -79,42 +81,29 @@ func fetchDevicesInfo(devices []tailscale.Device, ctx context.Context) []string 
 		go func(index int, device tailscale.Device) {
 			defer wg.Done()
 
-			ctx, cancel := context.WithTimeout(ctx, time.Second * 10)
+			ctx, cancel := context.WithTimeout(ctx, time.Second*10)
 			defer cancel()
 
-			url := fmt.Sprintf("https://%s/webhook/hooks/info-json", device.Name)
-			log.Println(url)
+			info, err := fetchDeviceInfo(device.Name, ctx)
+			if err != nil {
+				results[index] = nil
+				return
+			}
 
-			req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-			if err != nil {
-				results[index] =  fmt.Sprintf("ERR %s", err)
-				return
-			}
-			res, err := http.DefaultClient.Do(req)
-			if err != nil {
-				results[index] = fmt.Sprintf("ERR %s", err)
-				return
-			}
-			defer res.Body.Close()
-
-			b, err := io.ReadAll(res.Body)
-			if err != nil {
-				results[index] = fmt.Sprintf("ERR %s", err)
-				return
-			}
-		
-			results[index] = fmt.Sprintf("JAJ %s", b)
+			results[index] = info
 		}(index, value)
 	}
 	wg.Wait()
+	return results
 }
 
 func devicesHandler(w http.ResponseWriter, r *http.Request) {
-	// ctx := context.Background()
+
 	ctx, cancel := context.WithTimeout(r.Context(), time.Minute)
 	defer cancel()
 
-	devices, err := ts.Devices(ctx)
+	filter := "tag:nixos"
+	devices, err := ts.Devices(ctx, &filter)
 
 	if err != nil {
 		http.Error(w, err.Error(), 500)
@@ -129,15 +118,12 @@ func devicesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 	}
 
-	results := fetchDevicesInfo(devices)
+	results := fetchDevicesInfo(devices, ctx)
 
 	var response Response
 
 	for i, td := range devices {
 		pingResult := results[i]
-		if !slices.Contains(td.Tags, "tag:nixos") {
-			continue
-		}
 
 		var device Device
 		// timeAgo := sinceDate.Sub(td.LastSeen.Time)
