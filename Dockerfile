@@ -1,4 +1,4 @@
-FROM golang AS builder
+FROM golang:alpine AS builder
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ COPY assets assets
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /go-nixos-menu
 
-FROM golang
+FROM golang:alpine
 COPY --from=builder /go-nixos-menu /go-nixos-menu
 CMD [ "/go-nixos-menu" ]
 
