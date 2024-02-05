@@ -17,13 +17,14 @@ var (
 )
 
 func StartServer() {
-	logger.Infoln(ip)
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/api/services", servicesHandler)
 
 	if err := systemd.NotifyReady(); err != nil {
 		logger.Errorf("failed to notify ready to systemd: %v", err)
 	}
+	addr := (*ip).String()
+	logger.Infoln("Listening at:", addr)
 
-	log.Fatal(http.ListenAndServe(":3333", nil))
+	log.Fatal(http.ListenAndServe(addr, nil))
 }

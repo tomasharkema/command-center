@@ -12,6 +12,30 @@ import (
 	"github.com/tailscale/tailscale-client-go/tailscale"
 )
 
+func fetchDeviceStatus(name string, ctx context.Context) (*string, error) {
+
+	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
+	defer cancel()
+
+	url := fmt.Sprintf("http://%s:3333/api/services", name)
+	logger.Infof("Fetch url for: %s", url)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		logger.Errorln("Fetch error:", err)
+		return nil, err
+	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		logger.Errorln("Fetch error:", err)
+		return nil, err
+	}
+
+	// defer res.Body.Close()
+	result := fmt.Sprintf("%v", res.Status)
+	return &result, nil
+}
+
 func fetchDeviceInfo(name string, ctx context.Context) (result *DeviceInfo, err error) {
 
 	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
@@ -77,6 +101,14 @@ func fetchDevicesInfo(devices []tailscale.Device, ctx context.Context) []*Device
 				return
 			}
 
+			status, err := fetchDeviceStatus(device.Name, ctx)
+			if err != nil {
+				results[index] = &DeviceInfo{
+					Err: &err,
+				}
+				return
+			}
+			logger.Infof("STATUS: %v", status)
 			results[index] = info
 		}(index, value)
 	}
