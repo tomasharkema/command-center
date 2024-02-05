@@ -28,10 +28,10 @@
       default = go-nixos-menu;
       go-nixos-menu = pkgs.buildGoModule rec {
         pname = "go-nixos-menu";
-        version = "0.0.1-alpha2";
+        version = "0.0.1-alpha3";
 
         CGO_ENABLED = 0;
-        vendorHash = "sha256-yA/tvJ5H8zonTFO7N83AneaQyC55S64oy+Z8ofL7U6U=";
+        vendorHash = "sha256-MMnu4RgO8ecijioP8o8GbP1dp6daGh1FeZUAqHGC3Xc=";
 
         src = ./.;
 

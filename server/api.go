@@ -49,7 +49,7 @@ func devicesHandler(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), time.Minute)
 	defer cancel()
 
-	response, err := devices(ctx)
+	response, err := Devices(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return

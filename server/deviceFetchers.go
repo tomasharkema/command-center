@@ -219,7 +219,7 @@ func fetchDevicesInfo(devices []tailscale.Device, ctx context.Context) []*Device
 	return results
 }
 
-func devices(ctx context.Context) (*Response, error) {
+func Devices(ctx context.Context) (*Response, error) {
 	filter := "tag:nixos"
 	devices, err := tailscalehelper.Devices(ctx, &filter)
 
