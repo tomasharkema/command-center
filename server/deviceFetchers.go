@@ -36,24 +36,25 @@ func fetchDeviceInfo(name string, ctx context.Context) (result *DeviceInfo, err 
 
 	var deviceInfoResponse DeviceInfoResponse
 	err = dec.Decode(&deviceInfoResponse)
-if err!=nil {
-	logger.Errorln("Fetch error:", err)
-	return nil, err
-}
+	if err != nil {
+		logger.Errorln("Fetch error:", err)
+		return nil, err
+	}
 
 	info := &DeviceInfo{
-		Time: time.Now(),
+		Time:     time.Now(),
 		Response: &deviceInfoResponse,
 	}
 
 	return info, nil
 }
 
-const fetchDevicesInfoKey = "fetchDevicesInfoKey" 
+const fetchDevicesInfoKey = "fetchDevicesInfoKey"
+
 func fetchDevicesInfo(devices []tailscale.Device, ctx context.Context) []*DeviceInfo {
 
 	res, found := DevicesCache.Get(fetchDevicesInfoKey)
-	if  found {
+	if found {
 		return res.([]*DeviceInfo)
 	}
 
@@ -70,7 +71,9 @@ func fetchDevicesInfo(devices []tailscale.Device, ctx context.Context) []*Device
 
 			info, err := fetchDeviceInfo(device.Name, ctx)
 			if err != nil {
-				results[index] = nil
+				results[index] = &DeviceInfo{
+					Err: &err,
+				}
 				return
 			}
 
@@ -78,6 +81,7 @@ func fetchDevicesInfo(devices []tailscale.Device, ctx context.Context) []*Device
 		}(index, value)
 	}
 	wg.Wait()
+
 	DevicesCache.Set(fetchDevicesInfoKey, results, time.Minute)
 	return results
 }

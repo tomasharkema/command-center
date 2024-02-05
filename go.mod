@@ -13,6 +13,7 @@ require (
 	github.com/alecthomas/kingpin/v2 v2.4.0 // indirect
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/iguanesolutions/go-systemd v3.1.2+incompatible // indirect
 	github.com/tailscale/hujson v0.0.0-20220506213045-af5ed07155e5 // indirect
 	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
 	golang.org/x/net v0.18.0 // indirect

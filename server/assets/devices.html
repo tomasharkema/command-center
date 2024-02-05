@@ -7,20 +7,13 @@
       href="https://fonts.googleapis.com/css2?family=B612:ital,wght@0,400;0,700;1,400;1,700&display=swap"
       rel="stylesheet"
     />
-    <!-- <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"
-      integrity="sha512-hUhvpC5f8cgc04OZb55j0KNGh4eh7dLxd/dPSJ5VyzqDWxsayYbojWyl5Tkcgrmb/RVKCRJI1jNlRbVP4WWC4w=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
-    <script src="//unpkg.com/timeago.js"></script> -->
     <style>
       body {
         background-color: rgb(19, 26, 37);
         color: rgb(230, 234, 235);
 
         font-family: "B612", sans-serif;
-        font-weight: 200;
+
         font-style: normal;
 
         max-width: 900px;
@@ -30,15 +23,22 @@
         -moz-osx-font-smoothing: grayscale;
       }
       .devices {
+        margin-top: 1em;
+        margin-bottom: 1em;
       }
       .device {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
         padding: 0.8em;
         background-color: #1c2434;
         border: 1pt solid #2d3340;
 
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+      }
+      .device-info-row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
         gap: 1em;
       }
       .row {
@@ -80,20 +80,27 @@
     <div class="devices">
       {{range .Devices}}
       <div class="device" id="{{.Id}}">
-        <div class="status"><div class="{{.Status}}"></div></div>
-        <div class="row info">
-          <div class="name primary">{{.Name}}</div>
-          <div class="last-seen secondary">{{.LastSeen}}</div>
-        </div>
-        <div class="row hostname">
+        <div class="device-info-row">
+          <div class="status"><div class="{{.Status}}"></div></div>
+          <div class="row info">
+            <div class="name primary">
+              {{.Name}} <span class="secondary">{{.Ip}}</span>
+            </div>
+            <div class="last-seen secondary">{{.LastSeen}}</div>
+          </div>
+          <!-- <div class="row hostname">
           <div>
             <pre>
             {{.Hostname}}
             {{.Adresses}}
             </pre>
           </div>
+        </div> -->
+          <div class="row tags"><pre>{{.Tags}}</pre></div>
         </div>
-        <div class="row tags"><pre>{{.Tags}}</pre></div>
+        {{if .Err}}
+        <div class="error">{{.Err}}</div>
+        {{end}}
       </div>
       {{end}}
     </div>

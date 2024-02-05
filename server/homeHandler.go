@@ -6,14 +6,27 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"slices"
+	"strings"
 	"time"
 
+	"github.com/tailscale/tailscale-client-go/tailscale"
 	ts "github.com/tomasharkema/go-nixos-menu/tailscale"
 	"github.com/xeonx/timeago"
 )
 
 //go:embed assets/devices.html
 var devicesHtml string
+
+func mainIpv4Address(device tailscale.Device) string {
+	for _, address := range device.Addresses {
+		if !strings.Contains(address, ":") {
+			return address
+		}
+	}
+
+	return ""
+}
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -25,6 +38,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		http.Error(w, err.Error(), 500)
+		return
 	}
 
 	sinceDate := time.Now()
@@ -34,7 +48,12 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	t, err := template.New("foo").Parse(devicesHtml)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
+		return
 	}
+
+	slices.SortFunc(devices, func(a, b tailscale.Device) int {
+		return int(b.LastSeen.Time.Sub(a.LastSeen.Time).Seconds())
+	})
 
 	results := fetchDevicesInfo(devices, ctx)
 
@@ -48,6 +67,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 		device.Id = fmt.Sprintf("device-%s", td.ID)
 		device.Name = td.Hostname
+		device.Ip = mainIpv4Address(td)
 
 		if td.LastSeen.After(lastSeenDeadline) {
 			device.Status = "up"
@@ -65,6 +85,11 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		device.Hostname = fmt.Sprintf("%s, %s", td.Name, pingResult)
+
+		if pingResult.Err != nil {
+			errString := (*pingResult.Err).Error()
+			device.Err = &errString
+		}
 
 		response.Devices = append(response.Devices, device)
 

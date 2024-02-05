@@ -10,6 +10,8 @@ type Device struct {
 	Adresses string
 	Tags     string
 	Hostname string
+	Ip       string
+	Err      *string
 }
 
 type Response struct {
@@ -17,14 +19,16 @@ type Response struct {
 }
 
 type DeviceInfo struct {
-	Time time.Time
+	Time     time.Time
 	Response *DeviceInfoResponse
+	Err      *error
 }
 
 type DeviceInfoResponse struct {
- Label string
- Name string
- Revision string
-Tags []string
-Version string
+	Label string
+	Name  string
+
+	Revision string
+	Tags     []string
+	Version  string
 }
