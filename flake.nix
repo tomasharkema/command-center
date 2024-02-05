@@ -19,8 +19,30 @@
   } @ inputs: let
     forEachSystem = nixpkgs.lib.genAttrs (import systems);
   in {
-    packages = forEachSystem (system: {
+    packages = forEachSystem (system: let
+      lib = nixpkgs.lib;
+      pkgs = nixpkgs.legacyPackages.${system};
+    in rec {
       devenv-up = self.devShells.${system}.default.config.procfileScript;
+
+      default = go-nixos-menu;
+      go-nixos-menu = pkgs.buildGoModule rec {
+        pname = "go-nixos-menu";
+        version = "0.0.1-1";
+
+        CGO_ENABLED = 0;
+        vendorHash = "sha256-l3e3VmhpnPXO/l596IKlg3LwwqqF5A6k3oxiibb84W8=";
+
+        src = ./.;
+
+        meta = with lib; {
+          description = "tomas";
+          homepage = "https://github.com/tomasharkema/go-nixos-menu";
+          license = licenses.mit;
+          maintainers = ["tomasharkema" "tomas@harkema.io"];
+          mainProgram = pname;
+        };
+      };
     });
 
     devShells =
