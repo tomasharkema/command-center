@@ -86,8 +86,17 @@
             <div class="name primary">
               {{.Name}} <span class="secondary">{{.Ip}}</span>
             </div>
-            <div class="last-seen secondary">{{.LastSeen}}</div>
+            <div class="last-seen secondary">{{.LastSeenAgo}}</div>
           </div>
+          {{if .Services}}
+          <div class="row">
+            <span class="secondary">
+            Down:
+            {{range .Services.Failed}}
+            <span class="error">{{.}}</span>
+            {{end}}</span>
+          </div>
+          {{end}}
           <!-- <div class="row hostname">
           <div>
             <pre>

@@ -28,10 +28,10 @@
       default = go-nixos-menu;
       go-nixos-menu = pkgs.buildGoModule rec {
         pname = "go-nixos-menu";
-        version = "0.0.1-alpha1";
+        version = "0.0.1-alpha2";
 
         CGO_ENABLED = 0;
-        vendorHash = "sha256-YopZDBl9XUWpON7sRjs403lWdpN1I3zezv1eiGv0ziw=";
+        vendorHash = "sha256-yA/tvJ5H8zonTFO7N83AneaQyC55S64oy+Z8ofL7U6U=";
 
         src = ./.;
 
@@ -68,7 +68,7 @@
               #   ${pkgs.go} build -v
               # '';
               processes.run.exec = ''
-                ${lib.getExe pkgs.watchexec} -r -e js,css,html,go,nix -- go run . -- -v
+                ${lib.getExe pkgs.watchexec} -r -e js,css,html,go,nix -- go run .
               '';
               # scripts.docker-build.exec = ''
               #   ${pkgs.docker} buildx build --platform=linux/amd64,linux/arm64 . -t ghcr.io/tomasharkema/go-nixos-menu

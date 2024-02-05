@@ -1,4 +1,4 @@
-package tailscale
+package tailscalehelper
 
 import (
 	"context"
@@ -9,17 +9,15 @@ import (
 )
 
 var (
-
-	apiKey = kingpin.Flag("api-key", "Api Key").Envar("TAILSCALE_API_KEY").Required().String()
+	apiKey  = kingpin.Flag("api-key", "Api Key").Envar("TAILSCALE_API_KEY").Required().String()
 	tailnet = kingpin.Flag("tailnet", "Tailnet").Envar("TAILSCALE_TAILNET").Required().String()
-
 )
 
-func getClient() (*tailscale.Client, error)  {
+func getClient() (*tailscale.Client, error) {
 
 	client, err := tailscale.NewClient(*apiKey, *tailnet)
 
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -29,11 +27,11 @@ func getClient() (*tailscale.Client, error)  {
 func Devices(ctx context.Context, filter *string) ([]tailscale.Device, error) {
 	client, err := getClient()
 
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
-	 devices, err:=client.Devices(ctx)
+	devices, err := client.Devices(ctx)
 
 	if err != nil {
 		return nil, err
@@ -41,7 +39,7 @@ func Devices(ctx context.Context, filter *string) ([]tailscale.Device, error) {
 
 	if filter == nil {
 
-	return devices, nil
+		return devices, nil
 	}
 
 	filtered := slices.DeleteFunc(devices, func(d tailscale.Device) bool {
