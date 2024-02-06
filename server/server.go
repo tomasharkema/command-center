@@ -23,8 +23,10 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func StartServer(addr string, ctx context.Context) {
-	go StartJobs(ctx)
+func StartServer(addr string, withJobs bool, ctx context.Context) {
+	if withJobs {
+		go StartJobs(ctx)
+	}
 
 	r := mux.NewRouter()
 

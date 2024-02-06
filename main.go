@@ -55,7 +55,7 @@ func main() {
 		go b.Start()
 	}
 
-	go server.StartServer((*ip).String(), ctx)
+	go server.StartServer((*ip).String(), *runBot, ctx)
 
 	logger.Infoln("Waiting for signal...")
 	sig := <-ctx.Done()
