@@ -3,9 +3,7 @@ package bot
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
-	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/google/logger"
@@ -13,9 +11,11 @@ import (
 )
 
 type CommandBot struct {
-	tgBot  *tgbotapi.BotAPI
-	chatID int64
-	ctx    context.Context
+	tgBot    *tgbotapi.BotAPI
+	chatID   int64
+	ctx      context.Context
+	hostName string
+	messages []int
 }
 
 var homeKeyboards = tgbotapi.NewInlineKeyboardMarkup(
@@ -28,7 +28,12 @@ var homeKeyboards = tgbotapi.NewInlineKeyboardMarkup(
 )
 
 func NewBot(botToken string, chatID int64, ctx context.Context) (*CommandBot, error) {
-	cb := &CommandBot{chatID: chatID, ctx: ctx}
+	hostName, err := os.Hostname()
+	if err != nil {
+		return nil, err
+	}
+
+	cb := &CommandBot{chatID: chatID, ctx: ctx, hostName: hostName}
 
 	bot, err := tgbotapi.NewBotAPI(botToken)
 	if err != nil {
@@ -36,44 +41,57 @@ func NewBot(botToken string, chatID int64, ctx context.Context) (*CommandBot, er
 	}
 
 	bot.Debug = true
-
 	cb.tgBot = bot
 
-	log.Printf("Authorized on account %s", bot.Self.UserName)
+	logger.Infof("Authorized on account %s\n", bot.Self.UserName)
 
 	return cb, nil
 }
 
 func (b *CommandBot) Start() {
+	ctx, cancel := context.WithCancel(b.ctx)
+	defer cancel()
+
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
 	updates := b.tgBot.GetUpdatesChan(u)
 
-	go b.sendStartMessage()
+	go func() {
+		_, _ = b.sendStartMessage(ctx)
+	}()
 
 	for update := range updates {
 		if update.Message != nil {
 			if update.Message.IsCommand() {
-				b.handleCommand(update.Message.Chat.ID, update.Message.Text)
+				b.handleCommand(update.Message.Chat.ID, update.Message.Text, ctx)
 			} else {
 				b.handleText(update.Message)
 			}
 		} else if update.CallbackQuery != nil {
-			b.handleCallback(update.CallbackQuery)
+			b.handleCallback(update.CallbackQuery, ctx)
 		} else {
 			logger.Warningf("no clue %v", update)
 		}
 
 	}
-
 }
 
-func (b *CommandBot) handleCommand(chatID int64, txt string) {
+func (b *CommandBot) Cleanups(ctx context.Context) {
+	logger.Infoln("Clean messages", len(b.messages))
+	for _, id := range b.messages {
+		c := tgbotapi.NewDeleteMessage(b.chatID, id)
+		_, err := b.tgBot.Send(c)
+		logger.Errorln("Cleanup error", err)
+	}
+	_, _ = b.sendEndMessage(ctx)
+}
+
+func (b *CommandBot) handleCommand(chatID int64, txt string, ctx context.Context) {
 	fmt.Println("HANDLE COMMAND!", txt)
 	switch txt {
 	case "/update":
-		b.handleUpdateCommand(chatID)
+		b.handleUpdateCommand(chatID, ctx)
 	}
 }
 
@@ -84,9 +102,9 @@ func (b *CommandBot) handleText(msg *tgbotapi.Message) {
 	// }
 }
 
-func (b *CommandBot) handleCallback(callbackInfo *tgbotapi.CallbackQuery) {
+func (b *CommandBot) handleCallback(callbackInfo *tgbotapi.CallbackQuery, ctx context.Context) {
 	callback := tgbotapi.NewCallback(callbackInfo.ID, callbackInfo.Data)
-	b.handleCommand(callbackInfo.Message.Chat.ID, callback.Text)
+	b.handleCommand(callbackInfo.Message.Chat.ID, callback.Text, ctx)
 
 	if _, err := b.tgBot.Request(callback); err != nil {
 		logger.Errorln("Error", err)
@@ -98,34 +116,18 @@ func (b *CommandBot) handleCallback(callbackInfo *tgbotapi.CallbackQuery) {
 	// }
 }
 
-func (b *CommandBot) sendStartMessage() {
-	hn, _ := os.Hostname()
-
-	welcomeString := fmt.Sprintf("<b>%s</b> present!", hn)
-
-	msg := tgbotapi.NewMessage(b.chatID, welcomeString)
-	msg.ParseMode = "HTML"
-	msg.ReplyMarkup = homeKeyboards
-
-	b.tgBot.Send(msg)
-}
-
-func (b *CommandBot) handleUpdateCommand(chatID int64) {
+func (b *CommandBot) handleUpdateCommand(chatID int64, ctx context.Context) {
 
 	text := fmt.Sprintln("<i>Fetching devices...</i>")
 
-	msg := tgbotapi.NewMessage(chatID, text)
-	msg.ParseMode = "HTMl"
-	// msg.ReplyToMessageID = message.MessageID
-	newMessage, err := b.tgBot.Send(msg)
-	if err != nil {
-		panic(err)
+	msg, err := b.sendMessage(chatID, text, nil, nil, ctx)
+
+	devices := server.GetDevices()
+	if devices == nil {
+		logger.Errorln("DEVICES NIL!")
+		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	devices, err := server.Devices(ctx)
 	newText := ""
 	var buttons [][]tgbotapi.InlineKeyboardButton
 
@@ -134,7 +136,16 @@ func (b *CommandBot) handleUpdateCommand(chatID int64) {
 	} else {
 
 		for _, device := range devices.Devices {
-			text := fmt.Sprintf("🟢 %s", device.Name)
+
+			upEmoji := func() string {
+				if device.Up {
+					return "🟢"
+				} else {
+					return "R"
+				}
+			}()
+
+			text := fmt.Sprintf("%s %s", upEmoji, device.Name)
 
 			row := tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(text, "/update"),
@@ -142,12 +153,13 @@ func (b *CommandBot) handleUpdateCommand(chatID int64) {
 			buttons = append(buttons, row)
 		}
 		newText = "<b>Got the following devices:</b>"
-		// newText = fmt.Sprintf("Devices: %v %s", devices,hn)
 	}
 
 	rows := tgbotapi.NewInlineKeyboardMarkup(buttons...)
-	edit := tgbotapi.NewEditMessageTextAndMarkup(b.chatID, newMessage.MessageID, newText, rows)
+
+	edit := tgbotapi.NewEditMessageTextAndMarkup(b.chatID, msg.MessageID, newText, rows)
 	edit.ParseMode = "HTML"
+
 	_, err = b.tgBot.Send(edit)
 	if err != nil {
 		logger.Errorln("ERROR", err)

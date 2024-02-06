@@ -1,12 +1,10 @@
 package server
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	servicelist "github.com/darylblake/go-systemd-servicelist"
 	"github.com/google/logger"
@@ -46,16 +44,16 @@ func servicesHandler(w http.ResponseWriter, r *http.Request) {
 func devicesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	ctx, cancel := context.WithTimeout(r.Context(), time.Minute)
-	defer cancel()
+	// ctx, cancel := context.WithTimeout(r.Context(), time.Minute)
+	// defer cancel()
 
-	response, err := Devices(ctx)
-	if err != nil {
-		http.Error(w, err.Error(), 500)
+	response := GetDevices()
+	if response == nil {
+		http.Error(w, "No response", 500)
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(response)
+	err := json.NewEncoder(w).Encode(response)
 	if err != nil {
 		logger.Infoln("error marshalling to json")
 		http.Error(w, err.Error(), 500)

@@ -5,6 +5,8 @@ import (
 	_ "embed"
 	"os"
 	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/tomasharkema/command-center/bot"
@@ -19,6 +21,10 @@ var (
 	botToken = kingpin.Flag("telegram-bot-token", "Telegram bot token").Envar("TELEGRAM_BOT_TOKEN").Required().String()
 	chatID   = kingpin.Flag("telegram-chat-id", "Telegram bot token").Envar("TELEGRAM_CHAT_ID").Required().Int64()
 	runBot   = kingpin.Flag("run-bot", "Telegram bot token").Envar("COMMAND_CENTER_RUN_BOT").Default("false").Bool()
+
+	ip = kingpin.Flag("listen", "IP address to ping.").Short('l').Default(":3333").TCP()
+
+	commandBot *bot.CommandBot
 )
 
 func createLogger() {
@@ -32,7 +38,7 @@ func createLogger() {
 }
 
 func main() {
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill, syscall.SIGTERM)
 	defer stop()
 
 	kingpin.Parse()
@@ -41,16 +47,31 @@ func main() {
 	logger.Infoln("start")
 
 	if *runBot {
-		bot, err := bot.NewBot(*botToken, *chatID, ctx)
+		b, err := bot.NewBot(*botToken, *chatID, ctx)
 		if err != nil {
 			logger.Fatalln("Error", err)
 		}
-
-		go bot.Start()
+		commandBot = b
+		go b.Start()
 	}
 
-	go server.StartServer(ctx)
+	go server.StartServer((*ip).String(), ctx)
 
-	<-ctx.Done()
+	logger.Infoln("Waiting for signal...")
+	sig := <-ctx.Done()
+	logger.Warningln("Closing with", sig)
+	cleanups()
+
 	logger.Infoln("bye")
+}
+
+func cleanups() {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+
+	logger.Infoln("Run cleanups...")
+	if commandBot != nil {
+		commandBot.Cleanups(ctx)
+	}
+	logger.Infoln("Run cleanups done")
 }

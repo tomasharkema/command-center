@@ -219,7 +219,7 @@ func fetchDevicesInfo(devices []tailscale.Device, ctx context.Context) []*Device
 	return results
 }
 
-func Devices(ctx context.Context) (*Response, error) {
+func devices(ctx context.Context) (*Response, error) {
 	filter := "tag:nixos"
 	devices, err := tailscalehelper.Devices(ctx, &filter)
 
@@ -255,8 +255,10 @@ func Devices(ctx context.Context) (*Response, error) {
 
 		if td.LastSeen.After(lastSeenDeadline) {
 			device.Status = "up"
+			device.Up = true
 		} else {
 			device.Status = "down"
+			device.Up = false
 		}
 
 		device.LastSeen = td.LastSeen.Time
@@ -296,6 +298,8 @@ func Devices(ctx context.Context) (*Response, error) {
 		// timeAgo := device.LastSeen.Sub(sinceDate)
 		// fmt.Fprintf(&buffer, "<pre>%d %s %s %s %s</pre>", i, device.Hostname, device.Addresses, device.LastSeen, timeAgo)
 	}
+
+	response.Time = time.Now()
 
 	return &response, nil
 }

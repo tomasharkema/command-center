@@ -28,10 +28,10 @@
       default = command-center;
       command-center = pkgs.buildGoModule rec {
         pname = "command-center";
-        version = "0.0.1-alpha4";
+        version = "0.0.1-alpha5";
 
         CGO_ENABLED = 0;
-        vendorHash = "sha256-MMnu4RgO8ecijioP8o8GbP1dp6daGh1FeZUAqHGC3Xc=";
+        vendorHash = "sha256-bDN8jEAKGRyo7XrDmIZrp1Bx2VBmWl3KUjH/Ue5FvEc=";
 
         src = ./.;
 
@@ -68,7 +68,7 @@
               #   ${pkgs.go} build -v
               # '';
               processes.run.exec = ''
-                ${lib.getExe pkgs.watchexec} -r -e js,css,html,go,nix -- go run .
+                ${lib.getExe pkgs.watchexec} -r -e js,css,html,go,nix -- go run . --listen=:3334 --verbose
               '';
               # scripts.docker-build.exec = ''
               #   ${pkgs.docker} buildx build --platform=linux/amd64,linux/arm64 . -t ghcr.io/tomasharkema/command-center
@@ -83,7 +83,7 @@
               pre-commit.hooks = {
                 shellcheck.enable = true;
                 gofmt.enable = true;
-                # golangci-lint.enable = true;
+                golangci-lint.enable = true;
               };
             }
           ];

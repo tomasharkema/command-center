@@ -14,10 +14,12 @@ type Device struct {
 	Ip          string          `json:"ip"`
 	Err         string          `json:"error"`
 	Services    *DeviceServices `json:"services"`
+	Up          bool            `json:"up"`
 }
 
 type Response struct {
-	Devices []Device `json:"devices"`
+	Devices []Device  `json:"devices"`
+	Time    time.Time `json:"time"`
 }
 
 type DeviceInfo struct {
