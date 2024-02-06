@@ -10,11 +10,11 @@ COPY *.go ./
 COPY tailscalehelper/. ./tailscalehelper/
 COPY server/. ./server/
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /go-nixos-menu
+RUN CGO_ENABLED=0 GOOS=linux go build -o /command-center
 
 FROM golang:alpine
-COPY --from=builder /go-nixos-menu /go-nixos-menu
-CMD [ "/go-nixos-menu" ]
+COPY --from=builder /command-center /command-center
+CMD [ "/command-center" ]
 
 EXPOSE 3333
 VOLUME [ "/data" ]

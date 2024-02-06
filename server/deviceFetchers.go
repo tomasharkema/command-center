@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/tomasharkema/go-nixos-menu/tailscalehelper"
+	"github.com/tomasharkema/command-center/tailscalehelper"
 
 	"github.com/google/logger"
 	"github.com/tailscale/tailscale-client-go/tailscale"

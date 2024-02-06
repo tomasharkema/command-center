@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"time"
@@ -26,7 +27,7 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func StartServer() {
+func StartServer(ctx context.Context) {
 
 	r := mux.NewRouter()
 

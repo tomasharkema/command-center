@@ -1,4 +1,4 @@
-module github.com/tomasharkema/go-nixos-menu
+module github.com/tomasharkema/command-center
 
 go 1.21.6
 

@@ -25,10 +25,10 @@
     in rec {
       devenv-up = self.devShells.${system}.default.config.procfileScript;
 
-      default = go-nixos-menu;
-      go-nixos-menu = pkgs.buildGoModule rec {
-        pname = "go-nixos-menu";
-        version = "0.0.1-alpha3";
+      default = command-center;
+      command-center = pkgs.buildGoModule rec {
+        pname = "command-center";
+        version = "0.0.1-alpha4";
 
         CGO_ENABLED = 0;
         vendorHash = "sha256-MMnu4RgO8ecijioP8o8GbP1dp6daGh1FeZUAqHGC3Xc=";
@@ -37,7 +37,7 @@
 
         meta = with lib; {
           description = "tomas";
-          homepage = "https://github.com/tomasharkema/go-nixos-menu";
+          homepage = "https://github.com/tomasharkema/command-center";
           license = licenses.mit;
           maintainers = ["tomasharkema" "tomas@harkema.io"];
           mainProgram = pname;
@@ -71,7 +71,7 @@
                 ${lib.getExe pkgs.watchexec} -r -e js,css,html,go,nix -- go run .
               '';
               # scripts.docker-build.exec = ''
-              #   ${pkgs.docker} buildx build --platform=linux/amd64,linux/arm64 . -t ghcr.io/tomasharkema/go-nixos-menu
+              #   ${pkgs.docker} buildx build --platform=linux/amd64,linux/arm64 . -t ghcr.io/tomasharkema/command-center
               # '';
 
               languages = {
