@@ -25,6 +25,9 @@
     in rec {
       devenv-up = self.devShells.${system}.default.config.procfileScript;
 
+      nixosModules.command-center = import ./modules/command-center.nix;
+      nixosModules.default = self.nixosModules.command-center;
+
       default = command-center;
       command-center = pkgs.buildGoModule rec {
         pname = "command-center";
