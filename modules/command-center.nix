@@ -21,7 +21,7 @@ in {
     };
     envPath = mkOption {
       type = types.str;
-      default = "";
+      default = null;
       description = "Command-Center env path";
     };
   };
@@ -38,6 +38,7 @@ in {
       enable = true;
       description = "command-center";
       environment = {
+        IS_NIXOS_SYSTEMD = true;
         COMMAND_CENTER_RUN_BOT = mkIf cfg.enableBot "true";
         INFO_JSON_PATH = info-json;
       };
@@ -48,7 +49,7 @@ in {
         RestartSec = 5;
         EnvironmentFile = cfg.envPath;
       };
-      script = "${lib.getExe command-center} -v";
+      script = "${lib.getExe pkgs.command-center} -v";
       wantedBy = ["multi-user.target" "network.target"];
     };
   in

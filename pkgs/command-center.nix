@@ -10,7 +10,7 @@ pkgs.buildGoModule rec {
   CGO_ENABLED = 0;
   vendorHash = "sha256-bDN8jEAKGRyo7XrDmIZrp1Bx2VBmWl3KUjH/Ue5FvEc=";
 
-  src = ./.;
+  src = ./..;
 
   meta = with lib; {
     description = "tomas";
