@@ -16,5 +16,5 @@ FROM golang:alpine
 COPY --from=builder /command-center /command-center
 CMD [ "/command-center" ]
 
-EXPOSE 3333
+EXPOSE 3456
 VOLUME [ "/data" ]
