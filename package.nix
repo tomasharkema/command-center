@@ -5,7 +5,7 @@
 }:
 pkgs.buildGoModule rec {
   pname = "command-center";
-  version = "0.0.1-alpha5";
+  version = "0.0.1-alpha6";
 
   CGO_ENABLED = 0;
   vendorHash = "sha256-bDN8jEAKGRyo7XrDmIZrp1Bx2VBmWl3KUjH/Ue5FvEc=";

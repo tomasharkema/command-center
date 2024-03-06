@@ -23,7 +23,7 @@ func fetchDeviceStatus(name string, ctx context.Context) (*string, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
 	defer cancel()
 
-	url := fmt.Sprintf("http://%s:3333/api/services", name)
+	url := fmt.Sprintf("http://%s:3456/api/services", name)
 	logger.Infof("Fetch url for: %s", url)
 
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
@@ -67,7 +67,7 @@ func fetchDeviceServices(name string, ctx context.Context) (*DeviceServices, err
 	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
 	defer cancel()
 
-	url := fmt.Sprintf("http://%s:3333/api/services", name)
+	url := fmt.Sprintf("http://%s:3456/api/services", name)
 	logger.Infof("Fetch url for: %s", url)
 
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)

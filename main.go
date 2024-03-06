@@ -22,7 +22,7 @@ var (
 	chatID   = kingpin.Flag("telegram-chat-id", "Telegram bot token").Envar("TELEGRAM_CHAT_ID").Required().Int64()
 	runBot   = kingpin.Flag("run-bot", "Telegram bot token").Envar("COMMAND_CENTER_RUN_BOT").Default("false").Bool()
 
-	ip = kingpin.Flag("listen", "IP address to ping.").Short('l').Default(":3333").TCP()
+	ip = kingpin.Flag("listen", "IP address to ping.").Short('l').Default(":3456").TCP()
 
 	commandBot *bot.CommandBot
 )
